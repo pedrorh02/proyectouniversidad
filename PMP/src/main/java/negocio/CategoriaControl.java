@@ -9,12 +9,10 @@ import Datos.CategoriaDAO;
 import entidades.Categoria;
 import java.util.ArrayList;
 import java.util.List;
+import javax.swing.JOptionPane;
 import javax.swing.table.DefaultTableModel;
 
-/**
- *
- * @author Equipo de Pedro
- */
+
 public class CategoriaControl {
     private final CategoriaDAO DATOS;
     private Categoria obj;
@@ -34,8 +32,15 @@ public class CategoriaControl {
         List<Categoria> lista = new ArrayList();
         lista.addAll(DATOS.listar(texto));
         
-        String[] titulos = {"ID", "NOmbre", "Descripcion", "Estado"};
-        this.modelotabla = new DefaultTableModel(null, titulos);
+        String[] titulos = {"Codigo", "Nombre", "Descripcion", "Estado"};
+        this.modelotabla = new DefaultTableModel(null, titulos){
+            @Override
+            public boolean isCellEditable(int row, int column) {
+                return false;
+            }
+        
+        
+        };
         
         String estado;
         String[] registro = new String[4];
@@ -45,7 +50,7 @@ public class CategoriaControl {
             if(item.isActivo()){
                 estado = "Activo";
             }else{
-                estado = "Inactivo";
+                estado = "Desactivado";
             }
             registro[0]= Integer.toString(item.getId_categoria());
             registro[1]= item.getNombre();
@@ -60,7 +65,7 @@ public class CategoriaControl {
     }
     
     public String insertar(String nombre, String descripcion){
-        
+       
         if(DATOS.existe(nombre)){
         return "El registro ya existe";
         
@@ -113,7 +118,7 @@ public class CategoriaControl {
         
         if(DATOS.desactualizar(id))
         {
-        return "ok";
+        return "OK";
         
         }else{
         return "No se puede desactivar el registro";
@@ -124,7 +129,7 @@ public class CategoriaControl {
    public String activar(int id){
       if(DATOS.activar(id))
         {
-        return "ok";
+        return "OK";
         
         }else{
         return "No se puede Activar el registro";

@@ -33,7 +33,7 @@ public class CategoriaDAO implements CrudSimpleInterface<Categoria>{
         
     List<Categoria> registros = new ArrayList();
         try {
-            ps = CON.getConexion().prepareStatement("select * from categoria where nombre LIKE ?");
+            ps = CON.getConexion().prepareStatement("select * from categoria where nombre LIKE ? ORDER BY id_categoria asc");
             ps.setString(1, "%" +texto+ "%");
             rs = ps.executeQuery();
             while(rs.next()){
@@ -54,17 +54,45 @@ public class CategoriaDAO implements CrudSimpleInterface<Categoria>{
                
      return registros;
     }
+    
+    
+    public List<Categoria> selecionar() {
+    List<Categoria> registros = new ArrayList();
+        try {
+            ps = CON.getConexion().prepareStatement("select id_categoria, nombre from categoria where activo = '1' ORDER BY id_categoria asc");
+            rs = ps.executeQuery();
+            while(rs.next()){
+                registros.add (new Categoria(rs.getInt(1),rs.getString(2)));
+            }
+            ps.close();
+            rs.close();
+                        
+        } catch (SQLException e) {
+            JOptionPane.showMessageDialog(null, e.getMessage());
+        } finally
+        {
+        ps = null;
+        rs = null;
+        CON.getDesconectar();
+        
+        }
+               
+     return registros;
+    }
+    
 
     @Override
     public boolean insertar(Categoria obj) {
     resp = false;
     
         try {
-           ps = CON.getConexion().prepareStatement("INSERT into Categoria(nombre,descripcion,activo) Values (?,?,1)");
+           ps = CON.getConexion().prepareStatement("INSERT into Categoria(nombre,descripcion,activo) Values (?,?,'1')");
            ps.setString(1, obj.getNombre());
            ps.setString(2, obj.getDescripcion());
+           
            if(ps.executeUpdate()>0){
-               resp = true;           
+               resp = true;
+               
            }
            ps.close();
         } catch (SQLException e) {
@@ -82,7 +110,7 @@ public class CategoriaDAO implements CrudSimpleInterface<Categoria>{
      resp = false;
     
         try {
-           ps = CON.getConexion().prepareStatement("update Categoria set nombre = ?,descripcion = ? where id=?");
+           ps = CON.getConexion().prepareStatement("update Categoria set nombre = ?,descripcion = ? where id_categoria=?");
            ps.setString(1, obj.getNombre());
            ps.setString(2, obj.getDescripcion());
            ps.setInt(3, obj.getId_categoria());
@@ -106,9 +134,10 @@ public class CategoriaDAO implements CrudSimpleInterface<Categoria>{
       resp = false;
     
         try {
-           ps = CON.getConexion().prepareStatement("update Categoria set activo = 0 where id=?");
+           ps = CON.getConexion().prepareStatement("update Categoria set activo = '0' where id_categoria=?");
            ps.setInt(1, id);
            if(ps.executeUpdate()>0){
+              
                resp = true;           
            }
            ps.close();
@@ -128,7 +157,7 @@ public class CategoriaDAO implements CrudSimpleInterface<Categoria>{
        resp = false;
     
         try {
-           ps = CON.getConexion().prepareStatement("update Categoria set activo = 1 where id=?");
+           ps = CON.getConexion().prepareStatement("update Categoria set activo = '1' where id_categoria=?");
            ps.setInt(1, id);
            if(ps.executeUpdate()>0){
                resp = true;           
@@ -150,12 +179,12 @@ public class CategoriaDAO implements CrudSimpleInterface<Categoria>{
       int totalRegistros = 0;
     
         try {
-           ps = CON.getConexion().prepareStatement("Select Count(id) from categoria");
+           ps = CON.getConexion().prepareStatement("Select Count(id_categoria) from categoria");
            rs=ps.executeQuery();
            
            while(rs.next())
            {
-           totalRegistros= rs.getInt("count(id)");
+           totalRegistros= rs.getInt("count");
            }
            ps.close();
            rs.close();
@@ -176,10 +205,11 @@ public class CategoriaDAO implements CrudSimpleInterface<Categoria>{
       resp = false;
     
         try {
-           ps = CON.getConexion().prepareStatement("Select nombre from categoria where nombre = ?");
+           
+           ps = CON.getConexion().prepareStatement("Select nombre from categoria where nombre = ?",ResultSet.TYPE_SCROLL_INSENSITIVE,ResultSet.CONCUR_UPDATABLE);
            ps.setString(1, texto);
            rs=ps.executeQuery();
-           rs.last();
+           rs.first();
            if(rs.getRow()>0)
            {
            resp= true;

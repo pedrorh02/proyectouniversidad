@@ -5,6 +5,8 @@
  */
 package entidades;
 
+import java.util.Objects;
+
 /**
  *
  * @author Equipo de Pedro
@@ -15,6 +17,11 @@ public class Categoria {
     private String nombre;
     private String descripcion;
     private boolean activo;
+
+    public Categoria(int id_categoria, String nombre) {
+        this.id_categoria = id_categoria;
+        this.nombre = nombre;
+    }
     
     //contructores
 
@@ -66,8 +73,47 @@ public class Categoria {
 
     @Override
     public String toString() {
-        return "Categoria{" + "id_categoria=" + id_categoria + ", nombre=" + nombre + ", descripcion=" + descripcion + ", activo=" + activo + '}';
+        return  nombre ;
     }
+
+    @Override
+    public int hashCode() {
+        int hash = 7;
+        hash = 41 * hash + this.id_categoria;
+        hash = 41 * hash + Objects.hashCode(this.nombre);
+        hash = 41 * hash + Objects.hashCode(this.descripcion);
+        hash = 41 * hash + (this.activo ? 1 : 0);
+        return hash;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null) {
+            return false;
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        final Categoria other = (Categoria) obj;
+        if (this.id_categoria != other.id_categoria) {
+            return false;
+        }
+        if (this.activo != other.activo) {
+            return false;
+        }
+        if (!Objects.equals(this.nombre, other.nombre)) {
+            return false;
+        }
+        if (!Objects.equals(this.descripcion, other.descripcion)) {
+            return false;
+        }
+        return true;
+    }
+    
+    
     
     
 }
